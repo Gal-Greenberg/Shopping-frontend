@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Shopping</string>
+
+    <string name="state_prompt">Choose a state</string>
+    <string-array name="states_arrays">
+        <item>Choose a state</item>
+        <item>Israel</item>
+        <item>France</item>
+        <item>Italy</item>
+    </string-array>
 </resources>

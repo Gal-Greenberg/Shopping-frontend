@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ResultActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -19,37 +19,21 @@
             android:layout_marginRight="10dp"
             android:src="@drawable/shopping_title"/>
 
-        <ImageView
-            android:id="@+id/shoppingImage"
+        <ListView
+            android:id="@+id/listView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
-            android:layout_above="@id/signIn"
-            android:layout_marginBottom="20dp"
-            android:src="@drawable/shopping"/>
-
-        <Button
-            android:id="@+id/signIn"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Sign In"
-            android:layout_above="@id/signUp"
+            android:layout_above="@id/shopping"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="20dp"
-            android:textAllCaps="false"
-            android:background="@drawable/blue_border"
-            android:drawableLeft="@drawable/emoji_left"
-            android:drawableRight="@drawable/emoji_right"
-            android:drawablePadding="5dip"
-            android:paddingLeft="5dip"
-            android:paddingRight="5dip"/>
+            android:layout_marginBottom="20dp"/>
 
         <Button
-            android:id="@+id/signUp"
+            android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="Sign Up"
+            android:text="Main"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -63,5 +47,6 @@
             android:paddingRight="5dip"/>
 
     </RelativeLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".SignIn">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -24,32 +24,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/title"
-            android:layout_above="@id/signIn"
+            android:layout_above="@id/email"
             android:layout_marginBottom="20dp"
             android:src="@drawable/shopping"/>
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="Enter email"
+            android:layout_above="@id/signIn"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"/>
 
         <Button
             android:id="@+id/signIn"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:text="Sign In"
-            android:layout_above="@id/signUp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="20dp"
-            android:textAllCaps="false"
-            android:background="@drawable/blue_border"
-            android:drawableLeft="@drawable/emoji_left"
-            android:drawableRight="@drawable/emoji_right"
-            android:drawablePadding="5dip"
-            android:paddingLeft="5dip"
-            android:paddingRight="5dip"/>
-
-        <Button
-            android:id="@+id/signUp"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="Sign Up"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -63,5 +56,6 @@
             android:paddingRight="5dip"/>
 
     </RelativeLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
