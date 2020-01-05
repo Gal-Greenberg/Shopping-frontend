@@ -6,12 +6,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.shopping.User.UserBoundary;
+
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.concurrent.ExecutionException;
 
 public class SignIn extends AppCompatActivity {
 
@@ -34,7 +42,14 @@ public class SignIn extends AppCompatActivity {
                     return;
                 }
 
-                //TODO log in the user with backend
+                Task login = new Task();
+                try {
+                    UserBoundary result = login.execute().get();
+                    Log.d("restTemplate", result.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 int role = 0; // 0 - PLAYER, 1 - MANAGER
 
                 Bundle bundle = new Bundle();
