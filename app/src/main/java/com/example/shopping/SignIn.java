@@ -1,7 +1,5 @@
 package com.example.shopping;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -14,14 +12,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.shopping.Tasks.UserTasks;
 import com.example.shopping.User.UserBoundary;
+import com.example.shopping.User.UserRole;
 
-import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.concurrent.ExecutionException;
-
-public class SignIn extends AppCompatActivity {
+public class SignIn extends MainActivity {
 
     EditText email;
     Button signIn;
@@ -42,29 +37,26 @@ public class SignIn extends AppCompatActivity {
                     return;
                 }
 
-                Task login = new Task();
+                stringEmail = email.getText().toString();
+                userTask = new UserTasks();
                 try {
-                    UserBoundary result = login.execute().get();
-                    Log.d("restTemplate", result.toString());
+                    loginUser = (UserBoundary) userTask.execute("login", "get",
+                            BASE_URL + "/users/login/{domain}/{email}", DOMAIN, stringEmail).get();
+                    Log.d("restTemplate", loginUser.toString());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "no user could be found with email: " + stringEmail, Toast.LENGTH_LONG).show();
+                    return;
                 }
 
-                int role = 0; // 0 - PLAYER, 1 - MANAGER
-
-                Bundle bundle = new Bundle();
                 Intent intent;
-
-                bundle.putString("email", email.toString());
-
-                if (role == 0) { // PLAYER
+                if (loginUser.getRole() == UserRole.PLAYER) { // PLAYER
                     intent = new Intent(SignIn.this, ChooseAction.class);
-                    intent.putExtras(bundle);
+                    intent.putExtras(new Bundle());
                     startActivity(intent);
                 } else { // MANAGER
-//                    intent = new Intent(SignIn.this, ManagerActivity.class);
-//                    intent.putExtras(bundle);
-//                    startActivity(intent);
+                    intent = new Intent(SignIn.this, ManagerActivity.class);
+                    intent.putExtras(new Bundle());
+                    startActivity(intent);
                 }
             }
         });

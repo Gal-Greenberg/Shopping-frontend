@@ -3,6 +3,7 @@
     package="com.example.shopping">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,14 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".InfoActivity"></activity>
+        <activity android:name=".ResultSearchUpdate"></activity>
+        <activity android:name=".UpdateElement" />
+        <activity android:name=".CreateElement" />
+        <activity android:name=".MallsDistance" />
+        <activity android:name=".ChooseCategory" />
+        <activity android:name=".ManagerActivity" />
+        <activity android:name=".InfoActivity" />
         <activity android:name=".ResultActivity" />
         <activity android:name=".SignIn" />
         <activity android:name=".SignUp" />
         <activity android:name=".ChooseMall" />
         <activity android:name=".ChooseStores" />
         <activity android:name=".ChooseAction" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".MenuActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

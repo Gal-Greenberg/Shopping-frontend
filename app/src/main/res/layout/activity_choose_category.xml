@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChooseMall">
+    tools:context=".ChooseCategory">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:layout_marginRight="10dp"
             android:gravity="center"
             android:textSize="30dp"
-            android:text="Please choose the mall you want to go"/>
+            android:text="Please choose category"/>
 
         <ListView
             android:id="@+id/listView"

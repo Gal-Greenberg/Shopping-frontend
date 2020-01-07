@@ -1,7 +1,5 @@
 package com.example.shopping;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,10 +7,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Tasks.ElementTasks;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChooseStores extends AppCompatActivity {
+public class ChooseStores extends MainActivity {
 
     ListView listView;
     Button shopping;
@@ -24,19 +25,25 @@ public class ChooseStores extends AppCompatActivity {
 
         listView = findViewById(R.id.listView);
 
-        final String state = getIntent().getExtras().getString("state");
+        ElementBoundary[] results;
+        elementTasks = new ElementTasks();
+        try {
+            results = (ElementBoundary[]) elementTasks.execute("stores", "get",
+                    BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}", DOMAIN, stringEmail, "store").get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
 
-        //TODO get all stores name in state from backend
         final ArrayList<String> allStores = new ArrayList<>();
-        allStores.add("Fox");
-        allStores.add("H&M");
-        allStores.add("H&O");
-        allStores.add("Renuar");
-        allStores.add("Castro");
+        for (ElementBoundary result: results) {
+            if (!allStores.contains(result.getName()) && result.getElementAttributes().get("state").equals(selectedState)) {
+                allStores.add(result.getName());
+            }
+        }
 
         final ListViewAdapter arrayAdapter = new ListViewAdapter(this, allStores, false, 0);
         listView.setAdapter(arrayAdapter);
-        listView.setItemsCanFocus(true);
 
         shopping = findViewById(R.id.shopping);
         shopping.setOnClickListener(new View.OnClickListener() {
@@ -48,15 +55,13 @@ public class ChooseStores extends AppCompatActivity {
                     return;
                 }
 
-                Bundle bundle = new Bundle();
-                bundle.putString("state", state);
-
                 int size = positionCheckedBox.size();
+                selectedStores = new String[size];
                 for (int i = 0; i < size; i++)
-                    bundle.putString("stores" + i, allStores.get(positionCheckedBox.get(i)));
+                    selectedStores[i] = allStores.get(positionCheckedBox.get(i));
 
                 Intent intent = new Intent(ChooseStores.this, ResultActivity.class);
-                intent.putExtras(bundle);
+                intent.putExtras( new Bundle());
                 startActivity(intent);
             }
         });

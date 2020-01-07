@@ -1,44 +1,36 @@
 package com.example.shopping;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Tasks.ElementTasks;
+import com.example.shopping.Tasks.UserTasks;
+import com.example.shopping.User.UserBoundary;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button signIn;
-    Button signUp;
+    public static final String DOMAIN = "2020a.nofar"; //2020a.alik
+    public static final String BASE_URL = "http://10.0.0.3:8080/collab";
 
-    Bundle bundle = new Bundle();
-    Intent intent;
+    public static String stringEmail;
+    public static UserTasks userTask;
+    public static ElementTasks elementTasks;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public static ElementBoundary selectedInfo;
+    public static UserBoundary loginUser;
 
-        signIn = findViewById(R.id.signIn);
-        signIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                intent = new Intent(MainActivity.this, SignIn.class);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
+    public static int actionNumber;
+    public static String selectedState;
+    public static String[] selectedStores;
+    public static ElementBoundary[] selectedMalls;
 
-        signUp = findViewById(R.id.signUp);
-        signUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                intent = new Intent(MainActivity.this, SignUp.class);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        });
+    public static ElementBoundary[] resultSearchUpdate;
+    public static ElementBoundary selectedUpdate;
+    public static boolean isCreating; //if false update
+
+    public MainActivity() {
+        userTask = new UserTasks();
+        elementTasks = new ElementTasks();
     }
+
 }

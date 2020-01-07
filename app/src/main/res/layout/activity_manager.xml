@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ManagerActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textAllCaps="false"
+            android:textColor="#03A9F4"
+            android:gravity="center"
+            android:textSize="30dp"/>
+
+        <TextView
+            android:id="@+id/thanks"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@id/title"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="#FF9800"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:text="Thanks for helping manage the app"/>
+
+        <ImageView
+            android:id="@+id/shoppingImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/thanks"
+            android:layout_above="@id/create"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/boss"/>
+
+        <Button
+            android:id="@+id/create"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Create"
+            android:layout_above="@id/update"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="20dp"
+            android:textAllCaps="false"
+            android:background="@drawable/blue_border"
+            android:drawableLeft="@drawable/emoji_left"
+            android:drawableRight="@drawable/emoji_right"
+            android:drawablePadding="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"/>
+
+        <Button
+            android:id="@+id/update"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Update"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="40dp"
+            android:textAllCaps="false"
+            android:background="@drawable/blue_border"
+            android:drawableLeft="@drawable/emoji_left"
+            android:drawableRight="@drawable/emoji_right"
+            android:drawablePadding="5dip"
+            android:paddingLeft="5dip"
+            android:paddingRight="5dip"/>
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

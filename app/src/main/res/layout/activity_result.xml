@@ -23,8 +23,9 @@
             android:id="@+id/listView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fadeScrollbars="false"
             android:layout_below="@id/title"
-            android:layout_above="@id/shopping"
+            android:layout_above="@id/main"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="20dp"/>

@@ -1,28 +1,27 @@
 package com.example.shopping;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Tasks.ElementTasks;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChooseAction extends AppCompatActivity {
+public class ChooseAction extends MainActivity {
 
     Spinner spinner;
     ListView listView;
     Button shopping;
 
-    String spinnerSelected;
     int spinnerSelectedPosition;
 
     @Override
@@ -39,17 +38,35 @@ public class ChooseAction extends AppCompatActivity {
         allActions.add("Finding distance between shopping malls"); //3
         allActions.add("Search the store with the most likes in specific mall"); //4
 
-        final ListViewAdapter arrayAdapter = new ListViewAdapter(this, allActions, false, 1);
-        listView.setAdapter(arrayAdapter);
-        listView.setItemsCanFocus(true);
+        final ListViewAdapter listViewAdapter = new ListViewAdapter(this, allActions, false, 1);
+        listView.setAdapter(listViewAdapter);
+
+        ElementBoundary[] result;
+        elementTasks = new ElementTasks();
+        try {
+            result = (ElementBoundary[]) elementTasks.execute("states", "get",
+                    BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}", DOMAIN, stringEmail, "state").get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        String[] arraySpinner = new String[result.length + 1];
+        arraySpinner[0] = "Choose a state";
+        for (int i = 0; i < result.length; i++) {
+            arraySpinner[i + 1] = result[i].getName();
+        }
 
         spinner = findViewById(R.id.states);
-        //TODO: get all stats from backend and put in spinner
+        ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
+                arraySpinner);
+        stringArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(stringArrayAdapter);
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 Object item = adapterView.getItemAtPosition(position);
-                spinnerSelected = item.toString();
+                selectedState = item.toString();
                 spinnerSelectedPosition = position;
             }
 
@@ -63,7 +80,7 @@ public class ChooseAction extends AppCompatActivity {
         shopping.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<Integer> positionCheckedBox = arrayAdapter.getCheckedBox();
+                List<Integer> positionCheckedBox = listViewAdapter.getCheckedBox();
                 if (positionCheckedBox.size() == 0) {
                     Toast.makeText(getApplicationContext(), "please choose action", Toast.LENGTH_LONG).show();
                     return;
@@ -74,14 +91,11 @@ public class ChooseAction extends AppCompatActivity {
                 }
 
                 Intent intent;
-                Bundle bundle = new Bundle();
-                bundle.putString("state", spinnerSelected);
-                bundle.putInt("actionNumber", positionCheckedBox.get(0));
-
-                switch (positionCheckedBox.get(0)) {
+                actionNumber = positionCheckedBox.get(0);
+                switch (actionNumber) {
                     case 0:
                         intent = new Intent(ChooseAction.this, ChooseStores.class);
-                        intent.putExtras(bundle);
+                        intent.putExtras(new Bundle());
                         startActivity(intent);
                         break;
                     case 1:
@@ -89,7 +103,7 @@ public class ChooseAction extends AppCompatActivity {
                     case 3:
                     case 4:
                         intent = new Intent(ChooseAction.this, ChooseMall.class);
-                        intent.putExtras(bundle);
+                        intent.putExtras(new Bundle());
                         startActivity(intent);
                         break;
                 }

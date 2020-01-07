@@ -1,11 +1,10 @@
 package com.example.shopping;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -15,12 +14,17 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-public class SignUp extends AppCompatActivity {
+import com.example.shopping.Tasks.UserTasks;
+import com.example.shopping.User.UserBoundary;
+import com.example.shopping.User.UserRole;
+
+public class SignUp extends MainActivity {
 
     EditText email;
     EditText userName;
     EditText avatar;
     RadioGroup roles;
+    RadioButton selectedRole;
     Button signUp;
 
     @Override
@@ -42,22 +46,28 @@ public class SignUp extends AppCompatActivity {
                     return;
                 }
 
-                //TODO sign up the user with backend
-                int role = 0; // 0 - PLAYER, 1 - MANAGER
+                stringEmail = email.getText().toString();
+                userTask = new UserTasks();
+                try {
+                    loginUser = (UserBoundary) userTask.execute("signUp", "post",
+                            BASE_URL + "/users", DOMAIN, stringEmail, selectedRole.getText().toString(),
+                            userName.getText().toString(), avatar.getText().toString()).get();
+                    Log.d("restTemplate", loginUser.toString());
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "A user with the id: " + stringEmail + " already exists! ",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
 
-                Bundle bundle = new Bundle();
                 Intent intent;
-
-                bundle.putString("email", email.toString());
-
-                if (role == 0) { // PLAYER
+                if (loginUser.getRole() == UserRole.PLAYER) { // PLAYER
                     intent = new Intent(SignUp.this, ChooseAction.class);
-                    intent.putExtras(bundle);
+                    intent.putExtras(new Bundle());
                     startActivity(intent);
                 } else { // MANAGER
-//                    intent = new Intent(SignUp.this, ManagerActivity.class);
-//                    intent.putExtras(bundle);
-//                    startActivity(intent);
+                    intent = new Intent(SignUp.this, ManagerActivity.class);
+                    intent.putExtras(new Bundle());
+                    startActivity(intent);
                 }
             }
         });
@@ -95,8 +105,8 @@ public class SignUp extends AppCompatActivity {
         }
 
         int selectedId = roles.getCheckedRadioButtonId();
-        RadioButton radioButton = findViewById(selectedId);
-        if (radioButton == null) {
+        selectedRole = findViewById(selectedId);
+        if (selectedRole == null) {
             Toast.makeText(getApplicationContext(), "please choose role", Toast.LENGTH_LONG).show();
             return false;
         }

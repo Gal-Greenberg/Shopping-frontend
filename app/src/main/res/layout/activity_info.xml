@@ -6,4 +6,100 @@
     android:layout_height="match_parent"
     tools:context=".InfoActivity">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="#673AB7"
+            android:gravity="center"
+            android:textSize="30dp"/>
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_below="@id/title"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="#FF9800"
+            android:gravity="center"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:id="@+id/state"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@id/name"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="#26B1F0"
+            android:gravity="fill_vertical"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@id/state"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="#FD1E0E"
+            android:gravity="fill_vertical"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:id="@+id/mallAndFloor"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@id/location"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="#FD1E0E"
+            android:gravity="fill_vertical"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:id="@+id/category"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@id/mallAndFloor"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="#FFEB3B"
+            android:gravity="fill_vertical"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:id="@+id/numLikes"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_below="@id/category"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textColor="#03A9F4"
+            android:gravity="fill_vertical"
+            android:textSize="20dp"/>
+
+        <ImageButton
+            android:id="@+id/like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/numLikes"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/like"/>
+
+    </RelativeLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
