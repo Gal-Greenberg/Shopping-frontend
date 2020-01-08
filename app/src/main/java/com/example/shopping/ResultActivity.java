@@ -4,15 +4,22 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.example.shopping.Element.ElementBoundary;
+import com.example.shopping.Tasks.ActionTasks;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivity extends MainActivity {
 
     ListView listView;
     Button main;
@@ -24,15 +31,40 @@ public class ResultActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.listView);
 
-        //TODO: get all results from backend and put in allMalls
-        final ArrayList<String> allResults = new ArrayList<>();
-        allResults.add("1");
-        allResults.add("2");
-        allResults.add("3");
-        allResults.add("4");
-        allResults.add("5");
+        Object result = null;
+        actionTasks = new ActionTasks();
+        try {
+            switch (actionNumber) {
+                case 0:
+                    result = elementTasks.execute(BASE_URL + "/actions", DOMAIN, loginUser.getUserId().getEmail(),
+                            selectedState.getElementId().getId(), "findStoresInState", "0", "10", selectedStores.toString()).get();
+                    break;
+                case 1:
+                    result = elementTasks.execute(BASE_URL + "/actions", DOMAIN, loginUser.getUserId().getEmail(),
+                            selectedMalls[0].getElementId().getId(), "findAllStoresInMall", "0", "10").get();
+                    break;
+                case 2:
+                    result = elementTasks.execute(BASE_URL + "/actions", DOMAIN, loginUser.getUserId().getEmail(),
+                            selectedMalls[0].getElementId().getId(), "findAllStoresInCategoryInMall", "0", "10",
+                            selectedCategory.toString()).get();
+                    break;
+                case 4:
+                    result = elementTasks.execute(BASE_URL + "/actions", DOMAIN, loginUser.getUserId().getEmail(),
+                            selectedMalls[0].getElementId().getId(), "findAllStoresByLikes", "0", "10").get();
+                    break;
+            }
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, allResults);
+        } catch (Exception e) {
+            Log.e("ExceptionChooseAction", e.getMessage());
+        }
+        if (result.getClass() == String.class) {
+            Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
+            return;
+        }
+        List<ElementBoundary> allResults = Arrays.asList((ElementBoundary[]) result);
+
+        final ListViewAdapter arrayAdapter = new ListViewAdapter(this, allResults, true, "info",
+                false, 0);
         listView.setAdapter(arrayAdapter);
 
         main = findViewById(R.id.main);

@@ -2,22 +2,23 @@ package com.example.shopping;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Element.ElementBoundary;
 import com.example.shopping.Tasks.ElementTasks;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ChooseMall extends MainActivity {
+
+    ImageButton user;
 
     ListView listView;
     TextView title;
@@ -30,23 +31,38 @@ public class ChooseMall extends MainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_mall);
 
+        user = findViewById(R.id.user);
+        user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChooseMall.this, UserInfo.class);
+                intent.putExtras(new Bundle());
+                startActivity(intent);
+            }
+        });
+
         listView = findViewById(R.id.listView);
         title = findViewById(R.id.title);
 
-        ElementBoundary[] results;
+        Object result = null;
         elementTasks = new ElementTasks();
         try {
-            results = (ElementBoundary[]) elementTasks.execute("malls", "get",
-                    BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}", DOMAIN, stringEmail, "mall").get();
+            result = elementTasks.execute("malls", "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}",
+                    DOMAIN, loginUser.getUserId().getEmail(), "mall").get();
         } catch (Exception e) {
-            e.printStackTrace();
-            return;
+            Log.e("ExceptionChooseMall", e.getMessage());
         }
 
+        if (result.getClass() == String.class) {
+            Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
+            return;
+        }
+        ElementBoundary[] resultElementBoundary = (ElementBoundary[]) result;
+
         final ArrayList<ElementBoundary> allMalls = new ArrayList<>();
-        for (ElementBoundary result: results) {
-            if (result.getElementAttributes().get("state").equals(selectedState)){
-                allMalls.add(result);
+        for (ElementBoundary mall: resultElementBoundary) {
+            if (mall.getElementAttributes().get("state").equals(selectedState)){
+                allMalls.add(mall);
             }
         }
 
@@ -58,7 +74,7 @@ public class ChooseMall extends MainActivity {
             positionCheckedBoxEmptyErr = "please choose two mall";
         }
 
-        final ListViewAdapter arrayAdapter = new ListViewAdapter(this, allMalls, true, multipleChoice);
+        final ListViewAdapter arrayAdapter = new ListViewAdapter(this, allMalls, true, "info", true, multipleChoice);
         listView.setAdapter(arrayAdapter);
 
         shopping = findViewById(R.id.shopping);

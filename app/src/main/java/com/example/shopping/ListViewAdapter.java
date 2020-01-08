@@ -12,7 +12,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Element.ElementBoundary;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,9 @@ import java.util.List;
 public class ListViewAdapter extends BaseAdapter {
 
     private int multipleChoice;
-    private boolean withInfo;
+    private boolean withButton;
+    boolean withCheckBox;
+    private String buttonName;
     private Activity activity;
     private List<?> actions;
     private LayoutInflater inflater;
@@ -31,9 +33,12 @@ public class ListViewAdapter extends BaseAdapter {
         this.activity = activity;
     }
 
-    public ListViewAdapter(Activity activity, List<?> actions, boolean withInfo, int multipleChoice) {
+    public ListViewAdapter(Activity activity, List<?> actions, boolean withButton, String buttonName, boolean withCheckBox,
+                           int multipleChoice) {
         this.multipleChoice = multipleChoice;
-        this.withInfo = withInfo;
+        this.withButton = withButton;
+        this.withCheckBox = withCheckBox;
+        this.buttonName = buttonName;
         this.activity = activity;
         this.actions = actions;
 
@@ -67,10 +72,13 @@ public class ListViewAdapter extends BaseAdapter {
 
             holder.index = position;
             holder.ivCheckBox = view.findViewById(R.id.ivCheckBox);
-            holder.info = view.findViewById(R.id.info);
+            holder.button = view.findViewById(R.id.info);
 
-            if (!this.withInfo)
-                holder.info.setVisibility(View.GONE);
+            holder.button.setText(buttonName);
+            if (!this.withButton)
+                holder.button.setVisibility(View.GONE);
+            if (!withCheckBox)
+                holder.ivCheckBox.setVisibility(View.GONE);
 
             holder.ivCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -90,12 +98,19 @@ public class ListViewAdapter extends BaseAdapter {
                 }
             });
 
-            holder.info.setOnClickListener(new View.OnClickListener() {
+            holder.button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ((MainActivity) activity).selectedInfo = (ElementBoundary) actions.get(holder.index);
 
-                    Intent intent = new Intent(activity, InfoActivity.class);
+                    if (buttonName.matches("info")) {
+                        Intent intent = new Intent(activity, InfoActivity.class);
+                        intent.putExtras(new Bundle());
+                        activity.startActivity(intent);
+                    }
+
+                    ((MainActivity) activity).isCreating = false;
+                    Intent intent = new Intent(activity, CreateElement.class);
                     intent.putExtras(new Bundle());
                     activity.startActivity(intent);
                 }
@@ -106,13 +121,16 @@ public class ListViewAdapter extends BaseAdapter {
             holder = (ViewHolder)view.getTag();
         }
 
-        String temp;
-        if (actions.get(0).getClass() == ElementBoundary.class)
-            temp = ((ElementBoundary) actions.get(position)).getName();
-        else
-            temp = (String) actions.get(position);
-
-        holder.ivCheckBox.setText(temp);
+        String tempTextCheckBox;
+        if (actions.get(0).getClass() == ElementBoundary.class) {
+            ElementBoundary tempElementBoundary = (ElementBoundary) actions.get(position);
+            tempTextCheckBox = tempElementBoundary.getName();
+            if (tempElementBoundary.getType().matches("store"))
+                tempTextCheckBox += " in " + tempElementBoundary.getElementAttributes().get("mall");
+        } else {
+            tempTextCheckBox = (String) actions.get(position);
+        }
+        holder.ivCheckBox.setText(tempTextCheckBox);
 
         return view;
     }
@@ -145,7 +163,7 @@ public class ListViewAdapter extends BaseAdapter {
 
         int index;
         CheckBox ivCheckBox;
-        Button info;
+        Button button;
 
     }
 }

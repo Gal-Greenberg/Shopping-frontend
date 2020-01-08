@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -12,17 +13,20 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Element.ElementBoundary;
 import com.example.shopping.Tasks.ElementTasks;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 public class CreateElement extends MainActivity {
+
+    ImageButton user;
 
     TextView title;
     EditText name;
@@ -31,7 +35,9 @@ public class CreateElement extends MainActivity {
 
     Spinner statesSpinner;
 
-    EditText location;
+    EditText city;
+    EditText streetName;
+    EditText streetNum;
 
     EditText mall;
     EditText floor;
@@ -50,6 +56,16 @@ public class CreateElement extends MainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_element);
 
+        user = findViewById(R.id.user);
+        user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(CreateElement.this, UserInfo.class);
+                intent.putExtras(new Bundle());
+                startActivity(intent);
+            }
+        });
+
         title = findViewById(R.id.title);
         title.setText("Hello, " + loginUser.getUsername());
 
@@ -59,7 +75,9 @@ public class CreateElement extends MainActivity {
 
         statesSpinner = findViewById(R.id.states);
 
-        location = findViewById(R.id.location);
+        city = findViewById(R.id.city);
+        streetName = findViewById(R.id.streetName);
+        streetNum = findViewById(R.id.streetNum);
 
         mall = findViewById(R.id.mall);
         floor = findViewById(R.id.floor);
@@ -78,7 +96,9 @@ public class CreateElement extends MainActivity {
                     case 0:
                     case 1:
                         statesSpinner.setVisibility(View.GONE);
-                        location.setVisibility(View.GONE);
+                        city.setVisibility(View.GONE);
+                        streetName.setVisibility(View.GONE);
+                        streetNum.setVisibility(View.GONE);
 
                         mall.setVisibility(View.GONE);
                         floor.setVisibility(View.GONE);
@@ -121,21 +141,22 @@ public class CreateElement extends MainActivity {
                     updating();
                 }
 
-                ElementBoundary[] result;
+                Object result = null;
                 elementTasks = new ElementTasks();
                 try {
-                    result = (ElementBoundary[]) elementTasks.execute("create", "post",
-                            BASE_URL + "/elements/{managerDomain}/{managerEmail}", DOMAIN, stringEmail,
-                            name.getText().toString(), selectedType, "" + active.isChecked(), selectedState,
-                            location.getText().toString(), mall.getText().toString(), floor.getText().toString(),
+                    result = elementTasks.execute("create", "post", BASE_URL + "/elements/{managerDomain}/{managerEmail}",
+                            DOMAIN, loginUser.getUserId().getEmail(), name.getText().toString(), selectedType,
+                            "" + active.isChecked(), selectedState, city.getText().toString(), streetName.getText().toString(),
+                            streetNum.getText().toString(), mall.getText().toString(), floor.getText().toString(),
                             category.getText().toString()).get();
                 } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                    return;
+                    Log.e("ExceptionCreateElement", e.getMessage());
                 }
 
-                actionSucceeded(result, "creation");
+                ElementBoundary[] resultElementBoundary = isResultAsElementBoundaryArr(result);
+                if (resultElementBoundary == null)
+                    return;
+                actionSucceeded("creation");
             }
         });
 
@@ -144,29 +165,33 @@ public class CreateElement extends MainActivity {
         }
     }
 
-    public void updating() {
-        String[] result;
-        elementTasks = new ElementTasks();
-        try {
-            result = (String[]) elementTasks.execute("update", "put",
-                    BASE_URL + "/elements/{managerDomain}/{managerEmail}/{elementDomain}/{elementId}", DOMAIN, stringEmail,
-                    DOMAIN, selectedUpdate.getElementId().getId(),
-                    name.getText().toString(), selectedType, "" + active.isChecked(), selectedState,
-                    location.getText().toString(), mall.getText().toString(), floor.getText().toString(),
-                    category.getText().toString()).get();
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-            return;
+    public ElementBoundary[] isResultAsElementBoundaryArr(Object result) {
+        if (result.getClass() == String.class) {
+            Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
+            return null;
         }
-        actionSucceeded(result, "update");
+        return (ElementBoundary[]) result;
     }
 
-    public void actionSucceeded(Object result, String action) {
-        if (result == null) {
-            Toast.makeText(getApplicationContext(), "Element " + action + " failed", Toast.LENGTH_LONG).show();
-            return;
+    public void updating() {
+        String result = null;
+        elementTasks = new ElementTasks();
+        try {
+            result = (String) elementTasks.execute("update", "put",
+                    BASE_URL + "/elements/{managerDomain}/{managerEmail}/{elementDomain}/{elementId}", DOMAIN,
+                    loginUser.getUserId().getEmail(), DOMAIN, selectedUpdate.getElementId().getId(),
+                    name.getText().toString(), selectedType, "" + active.isChecked(), selectedState,
+                    city.getText().toString(), streetName.getText().toString(), streetNum.getText().toString(),
+                    mall.getText().toString(), floor.getText().toString(), category.getText().toString()).get();
+        } catch (Exception e) {
+            Log.e("ExceptionCreateElement", e.getMessage());
         }
+        if (result.matches("put result succeeded"))
+            actionSucceeded("update");
+        Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+    }
+
+    public void actionSucceeded(String action) {
         Toast.makeText(getApplicationContext(), "Successful element " + action, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(CreateElement.this, ManagerActivity.class);
         intent.putExtras(new Bundle());
@@ -185,7 +210,9 @@ public class CreateElement extends MainActivity {
                 break;
             case "mall":
                 fillingFieldsMallAndStore(attributes);
-                location.setText(attributes.get("location").toString());
+                city.setText(attributes.get("city").toString());
+                streetName.setText(attributes.get("streetName").toString());
+                streetNum.setText(attributes.get("streetNum").toString());
                 typeSpinnerSelectedPosition = 2;
                 break;
             case "store":
@@ -222,8 +249,16 @@ public class CreateElement extends MainActivity {
     }
 
     public boolean isInputValidMall() {
-        if (location.getText().toString().matches("")) {
-            Toast.makeText(getApplicationContext(), "please enter location", Toast.LENGTH_LONG).show();
+        if (city.getText().toString().matches("")) {
+            Toast.makeText(getApplicationContext(), "please enter city", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (streetName.getText().toString().matches("")) {
+            Toast.makeText(getApplicationContext(), "please enter street name", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (streetNum.getText().toString().matches("")) {
+            Toast.makeText(getApplicationContext(), "please enter street number", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
@@ -248,20 +283,23 @@ public class CreateElement extends MainActivity {
     public void mallAndStore() {
         statesSpinner.setVisibility(View.VISIBLE);
 
-        ElementBoundary[] result;
+        Object result = null;
         elementTasks = new ElementTasks();
         try {
-            result = (ElementBoundary[]) elementTasks.execute("states", "get",
-                    BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}", DOMAIN, stringEmail, "state").get();
+            result = elementTasks.execute("states", "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}",
+                    DOMAIN, loginUser.getUserId().getEmail(), "state").get();
         } catch (Exception e) {
-            e.printStackTrace();
-            return;
+            Log.e("ExceptionCreateElement", e.getMessage());
         }
+
+        ElementBoundary[] resultElementBoundary = isResultAsElementBoundaryArr(result);
+        if (resultElementBoundary == null)
+            return;
 
         statesArraySpinner = new ArrayList<>();
         statesArraySpinner.add(0, "Choose a state");
-        for (int i = 0; i < result.length; i++) {
-            statesArraySpinner.add(i + 1,result[i].getName());
+        for (int i = 0; i < resultElementBoundary.length; i++) {
+            statesArraySpinner.add(i + 1,resultElementBoundary[i].getName());
         }
 
         ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
@@ -289,12 +327,16 @@ public class CreateElement extends MainActivity {
         floor.setVisibility(View.GONE);
         category.setVisibility(View.GONE);
 
-        location.setVisibility(View.VISIBLE);
+        city.setVisibility(View.VISIBLE);
+        streetName.setVisibility(View.VISIBLE);
+        streetNum.setVisibility(View.VISIBLE);
     }
 
     public void createStore() {
         statesSpinner.setVisibility(View.GONE);
-        location.setVisibility(View.GONE);
+        city.setVisibility(View.GONE);
+        streetName.setVisibility(View.GONE);
+        streetNum.setVisibility(View.GONE);
 
         mall.setVisibility(View.VISIBLE);
         floor.setVisibility(View.VISIBLE);

@@ -49,6 +49,12 @@ public class UserTasks extends AsyncTask<String, Void, Object> {
                 else
                     request = new NewUserForm(params[4], UserRole.MANAGER, params[6], params[7]);
                 break;
+            case "update":
+                if (params[5].matches("PLAYER"))
+                    request = new UserBoundary(null, UserRole.PLAYER, params[6], params[7]);
+                else
+                    request = new UserBoundary(null, UserRole.MANAGER, params[6], params[7]);
+                break;
         }
 
         try {
@@ -59,10 +65,12 @@ public class UserTasks extends AsyncTask<String, Void, Object> {
                     return restTemplate.postForObject(params[2], request, UserBoundary.class, urlVariables);
                 case "put":
                     restTemplate.put(params[2], request, urlVariables);
-                    return "put succeeded";
+                    return "put result succeeded";
             }
         }  catch (Exception e) {
-            e.printStackTrace();
+            //TODO fix to return all message, return only 404
+            Log.e("ExceptionUserTasks", e.getMessage());
+            return e.getMessage();
         }
         return null;
     }

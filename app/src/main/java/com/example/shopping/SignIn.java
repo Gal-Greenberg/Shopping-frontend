@@ -37,16 +37,21 @@ public class SignIn extends MainActivity {
                     return;
                 }
 
-                stringEmail = email.getText().toString();
                 userTask = new UserTasks();
+                Object result = null;
                 try {
-                    loginUser = (UserBoundary) userTask.execute("login", "get",
-                            BASE_URL + "/users/login/{domain}/{email}", DOMAIN, stringEmail).get();
+                    result = userTask.execute("login", "get", BASE_URL + "/users/login/{domain}/{email}", DOMAIN,
+                            email.getText().toString()).get();
                     Log.d("restTemplate", loginUser.toString());
                 } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "no user could be found with email: " + stringEmail, Toast.LENGTH_LONG).show();
+                    Log.e("ExceptionSignIn", e.getMessage());
+                }
+
+                if (result.getClass() == String.class) {
+                    Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
                     return;
                 }
+                loginUser = (UserBoundary) result;
 
                 Intent intent;
                 if (loginUser.getRole() == UserRole.PLAYER) { // PLAYER

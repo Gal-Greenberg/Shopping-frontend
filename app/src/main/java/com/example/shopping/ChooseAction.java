@@ -2,21 +2,25 @@ package com.example.shopping;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Element.ElementBoundary;
 import com.example.shopping.Tasks.ElementTasks;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChooseAction extends MainActivity {
+
+    ImageButton user;
 
     Spinner spinner;
     ListView listView;
@@ -29,6 +33,16 @@ public class ChooseAction extends MainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_action);
 
+        user = findViewById(R.id.user);
+        user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChooseAction.this, UserInfo.class);
+                intent.putExtras(new Bundle());
+                startActivity(intent);
+            }
+        });
+
         listView = findViewById(R.id.listView);
 
         final ArrayList<String> allActions = new ArrayList<>();
@@ -38,22 +52,28 @@ public class ChooseAction extends MainActivity {
         allActions.add("Finding distance between shopping malls"); //3
         allActions.add("Search the store with the most likes in specific mall"); //4
 
-        final ListViewAdapter listViewAdapter = new ListViewAdapter(this, allActions, false, 1);
+        final ListViewAdapter listViewAdapter = new ListViewAdapter(this, allActions, false, "", true, 1);
         listView.setAdapter(listViewAdapter);
 
-        ElementBoundary[] result;
+        Object result = null;
         elementTasks = new ElementTasks();
         try {
-            result = (ElementBoundary[]) elementTasks.execute("states", "get",
-                    BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}", DOMAIN, stringEmail, "state").get();
+            result = elementTasks.execute("states", "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}",
+                    DOMAIN, loginUser.getUserId().getEmail(), "state").get();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("ExceptionChooseAction", e.getMessage());
+        }
+
+        if (result.getClass() == String.class) {
+            Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
             return;
         }
-        String[] arraySpinner = new String[result.length + 1];
+        ElementBoundary[] resultElementBoundary = (ElementBoundary[]) result;
+
+        String[] arraySpinner = new String[resultElementBoundary.length + 1];
         arraySpinner[0] = "Choose a state";
-        for (int i = 0; i < result.length; i++) {
-            arraySpinner[i + 1] = result[i].getName();
+        for (int i = 0; i < resultElementBoundary.length; i++) {
+            arraySpinner[i + 1] = resultElementBoundary[i].getName();
         }
 
         spinner = findViewById(R.id.states);

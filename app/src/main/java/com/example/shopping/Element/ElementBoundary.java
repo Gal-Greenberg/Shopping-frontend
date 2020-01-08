@@ -1,4 +1,4 @@
-package com.example.shopping.ElementBoundary;
+package com.example.shopping.Element;
 
 import java.util.Date;
 import java.util.Map;

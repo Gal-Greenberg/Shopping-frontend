@@ -1,9 +1,9 @@
 package com.example.shopping.Tasks;
 
 import android.os.AsyncTask;
-import android.widget.Toast;
+import android.util.Log;
 
-import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Element.ElementBoundary;
 
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ElementTasks extends AsyncTask<String, Void, Object[]> {
+public class ElementTasks extends AsyncTask<String, Void, Object> {
 
     private RestTemplate restTemplate;
 
@@ -21,7 +21,7 @@ public class ElementTasks extends AsyncTask<String, Void, Object[]> {
     }
 
     @Override
-    protected Object[] doInBackground(String... params) {
+    protected Object doInBackground(String... params) {
         /*
          * params[0] - function name
          * params[1] - restTemplate function name (get/post/put)
@@ -32,10 +32,12 @@ public class ElementTasks extends AsyncTask<String, Void, Object[]> {
          * params[6] - urlVariables selectedType
          * params[7] - urlVariables active
          * params[8] - urlVariables selectedState
-         * params[9] - urlVariables location
-         * params[10] - urlVariables mall
-         * params[11] - urlVariables floor
-         * params[12] - urlVariables category
+         * params[9] - urlVariables city
+         * params[10] - urlVariables streetName
+         * params[11] - urlVariables streetNum
+         * params[12] - urlVariables mall
+         * params[13] - urlVariables floor
+         * params[14] - urlVariables category
          */
 
         String[] urlVariables = new String[params.length - 3];
@@ -52,32 +54,32 @@ public class ElementTasks extends AsyncTask<String, Void, Object[]> {
 
                 if (params[6].matches("mall")) {
                     elementAttributes.put("state", params[8]);
-                    elementAttributes.put("location", params[9]);
+                    elementAttributes.put("city", params[9]);
+                    elementAttributes.put("streetName", params[10]);
+                    elementAttributes.put("streetNum", params[11]);
 
-                    //get parent by name
-                    parentElement = restTemplate.getForObject("/elements/{userDomain}/{userEmail}/byName/{name}",
-                            ElementBoundary[].class, params[3], params[4], params[8])[0];
+                    parentElement = getParentByName(params);
+
                 }
                 if (params[6].matches("store")) {
-                    elementAttributes.put("mall", params[10]);
-                    elementAttributes.put("floor", params[11]);
-                    elementAttributes.put("category", params[12]);
+                    elementAttributes.put("mall", params[12]);
+                    elementAttributes.put("floor", params[13]);
+                    elementAttributes.put("category", params[14]);
                     elementAttributes.put("likes", 0);
 
-                    //get parent by name
-                    parentElement = restTemplate.getForObject("/elements/{userDomain}/{userEmail}/byName/{name}",
-                            ElementBoundary[].class, params[3], params[4], params[8])[0];
+                    parentElement = getParentByName(params);
                 }
 
-                if (parentElement == null) {
-                    throw new RuntimeException("no parent element found: floor/state");
-                }
-
-                request = new ElementBoundary(null, params[5], params[6], params[7], null,
+                if (parentElement == null)
+                    request = new ElementBoundary(null, params[5], params[6], params[7], null,
+                            null, null, elementAttributes);
+                else
+                    request = new ElementBoundary(null, params[5], params[6], params[7], null,
                         null, parentElement.getParentElement(), elementAttributes);
                 break;
         }
 
+        String[] result = new String[1];
         try {
             switch (params[1]) {
                 case "get":
@@ -86,12 +88,26 @@ public class ElementTasks extends AsyncTask<String, Void, Object[]> {
                     return restTemplate.postForObject(params[2], request, ElementBoundary[].class, urlVariables);
                 case "put":
                     restTemplate.put(params[2], request, urlVariables);
-                    String[] succeeded = {"put succeeded"};
-                    return succeeded;
+//                    result[0] = "put result";
+//                    return result;
+                    return "put result succeeded";
             }
         }  catch (Exception e) {
-            e.printStackTrace();
+            //TODO fix to return all message, return only 404
+            Log.e("ExceptionElementTasks", e.getMessage());
+//            result[0] = e.getMessage();
+//            return result;
+            return e.getMessage();
         }
         return null;
+    }
+
+    public ElementBoundary getParentByName(String... params) {
+        ElementBoundary parentElement = restTemplate.getForObject("/elements/{userDomain}/{userEmail}/byName/{name}",
+                ElementBoundary[].class, params[3], params[4], params[8])[0];
+        if (parentElement == null) {
+            throw new RuntimeException("no parent element found: floor/state");
+        }
+        return parentElement;
     }
 }

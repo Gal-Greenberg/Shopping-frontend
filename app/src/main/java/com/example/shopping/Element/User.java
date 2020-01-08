@@ -1,4 +1,4 @@
-package com.example.shopping.ElementBoundary;
+package com.example.shopping.Element;
 
 import com.example.shopping.User.UserId;
 

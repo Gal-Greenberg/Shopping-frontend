@@ -46,21 +46,24 @@ public class SignUp extends MainActivity {
                     return;
                 }
 
-                stringEmail = email.getText().toString();
                 userTask = new UserTasks();
+                Object result = null;
                 try {
-                    loginUser = (UserBoundary) userTask.execute("signUp", "post",
-                            BASE_URL + "/users", DOMAIN, stringEmail, selectedRole.getText().toString(),
-                            userName.getText().toString(), avatar.getText().toString()).get();
+                    result = userTask.execute("signUp", "post", BASE_URL + "/users", DOMAIN, email.getText().toString(),
+                            selectedRole.getText().toString(), userName.getText().toString(), avatar.getText().toString()).get();
                     Log.d("restTemplate", loginUser.toString());
                 } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "A user with the id: " + stringEmail + " already exists! ",
-                            Toast.LENGTH_LONG).show();
-                    return;
+                    Log.e("ExceptionSignUp", e.getMessage());
                 }
 
+                if (result.getClass() == String.class) {
+                    Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                loginUser = (UserBoundary) result;
+
                 Intent intent;
-                if (loginUser.getRole() == UserRole.PLAYER) { // PLAYER
+                if (loginUser.getRole() == UserRole.PLAYER) {
                     intent = new Intent(SignUp.this, ChooseAction.class);
                     intent.putExtras(new Bundle());
                     startActivity(intent);

@@ -1,4 +1,4 @@
-package com.example.shopping.ElementBoundary;
+package com.example.shopping.Element;
 
 public class Element {
 

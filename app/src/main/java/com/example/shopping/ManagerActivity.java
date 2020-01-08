@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class ManagerActivity extends MainActivity {
+
+    ImageButton user;
 
     TextView title;
     Button create;
@@ -18,6 +21,16 @@ public class ManagerActivity extends MainActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manager);
+
+        user = findViewById(R.id.user);
+        user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ManagerActivity.this, UserInfo.class);
+                intent.putExtras(new Bundle());
+                startActivity(intent);
+            }
+        });
 
         title = findViewById(R.id.title);
         title.setText("Hello, " + loginUser.getUsername());

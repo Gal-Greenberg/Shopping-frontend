@@ -12,7 +12,6 @@ public class MenuActivity extends AppCompatActivity {
     Button signIn;
     Button signUp;
 
-    Bundle bundle = new Bundle();
     Intent intent;
 
     @Override
@@ -25,7 +24,7 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 intent = new Intent(MenuActivity.this, SignIn.class);
-                intent.putExtras(bundle);
+                intent.putExtras(new Bundle());
                 startActivity(intent);
             }
         });
@@ -35,7 +34,7 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 intent = new Intent(MenuActivity.this, SignUp.class);
-                intent.putExtras(bundle);
+                intent.putExtras(new Bundle());
                 startActivity(intent);
             }
         });

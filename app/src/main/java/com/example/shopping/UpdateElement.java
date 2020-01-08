@@ -2,18 +2,24 @@ package com.example.shopping;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.shopping.ElementBoundary.ElementBoundary;
+import com.example.shopping.Element.ElementBoundary;
 import com.example.shopping.Tasks.ElementTasks;
 
+import java.util.Arrays;
+
 public class UpdateElement extends ManagerActivity {
+
+    ImageButton user;
 
     TextView title;
     Spinner updateBySpinner;
@@ -31,6 +37,16 @@ public class UpdateElement extends ManagerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_element);
+
+        user = findViewById(R.id.user);
+        user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(UpdateElement.this, UserInfo.class);
+                intent.putExtras(new Bundle());
+                startActivity(intent);
+            }
+        });
 
         title = findViewById(R.id.title);
         title.setText("Hello, " + loginUser.getUsername());
@@ -110,24 +126,52 @@ public class UpdateElement extends ManagerActivity {
     }
 
     public void getElementByName() {
-        ElementBoundary[] results;
         elementTasks = new ElementTasks();
+        Object result = null;
         try {
-            resultSearchUpdate = (ElementBoundary[]) elementTasks.execute(selectedType, "get",
-                    BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}", DOMAIN, stringEmail, selectedType).get();
+            result = elementTasks.execute(selectedType, "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byName/{name}",
+                    DOMAIN, loginUser.getUserId().getEmail(), name.getText().toString()).get();
         } catch (Exception e) {
-            e.printStackTrace();
-            return;
+            Log.e("ExceptionUpdateElement", e.getMessage());
         }
+        if (!isResultValid(result))
+            return;
+        handleResultSearchUpdate("name", name.getText().toString());
+    }
 
-        if (resultSearchUpdate.length == 0) {
-            Toast.makeText(getApplicationContext(), "no element found with type: " + selectedType, Toast.LENGTH_LONG).show();
+    public void getElementsByType() {
+        elementTasks = new ElementTasks();
+        Object result = null;
+        try {
+            result = elementTasks.execute(selectedType, "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}",
+                    DOMAIN, loginUser.getUserId().getEmail(), selectedType).get();
+        } catch (Exception e) {
+            Log.e("ExceptionUpdateElement", e.getMessage());
+        }
+        if (!isResultValid(result))
+            return;
+        handleResultSearchUpdate("type", selectedType);
+    }
+
+    public boolean isResultValid(Object result) {
+        if (result.getClass() == String.class) {
+            Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        resultSearchUpdate = Arrays.asList((ElementBoundary[]) result);
+        return true;
+    }
+
+    public void handleResultSearchUpdate(String updateBy, String value) {
+        if (resultSearchUpdate.size() == 0) {
+            Toast.makeText(getApplicationContext(), "no element found with " + updateBy + ": " + value, Toast.LENGTH_LONG).show();
             return;
         }
 
         Intent intent;
-        if (resultSearchUpdate.length == 1) {
-            selectedUpdate = resultSearchUpdate[0];
+        if (resultSearchUpdate.size() == 1) {
+            isCreating = false;
+            selectedUpdate = resultSearchUpdate.get(0);
             intent = new Intent(UpdateElement.this, CreateElement.class);
             intent.putExtras(new Bundle());
             startActivity(intent);
@@ -136,9 +180,5 @@ public class UpdateElement extends ManagerActivity {
         intent = new Intent(UpdateElement.this, ResultSearchUpdate.class);
         intent.putExtras(new Bundle());
         startActivity(intent);
-    }
-
-    public void getElementsByType() {
-
     }
 }

@@ -1,9 +1,13 @@
 package com.example.shopping;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.shopping.Tasks.ActionTasks;
 
 public class InfoActivity extends MainActivity {
 
@@ -65,8 +69,19 @@ public class InfoActivity extends MainActivity {
         like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String result = null;
+                actionTasks = new ActionTasks();
+                try {
+                    result = (String) elementTasks.execute(BASE_URL + "/actions", DOMAIN, loginUser.getUserId().getEmail(),
+                            selectedInfo.getElementId().getId(), "likeToStore").get();
+                } catch (Exception e) {
+                    Log.e("ExceptionChooseAction", e.getMessage());
+                }
+                if (!result.matches("Success")){
+                    Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+                    return;
+                }
                 numberLikes++;
-                //TODO actione like to store
             }
         });
 
