@@ -68,7 +68,7 @@ public class ChooseAction extends MainActivity {
             Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
             return;
         }
-        ElementBoundary[] resultElementBoundary = (ElementBoundary[]) result;
+        final ElementBoundary[] resultElementBoundary = (ElementBoundary[]) result;
 
         String[] arraySpinner = new String[resultElementBoundary.length + 1];
         arraySpinner[0] = "Choose a state";
@@ -85,9 +85,11 @@ public class ChooseAction extends MainActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                Object item = adapterView.getItemAtPosition(position);
-                selectedState = item.toString();
                 spinnerSelectedPosition = position;
+                if (position == 0)
+                    selectedState = null;
+                else
+                    selectedState = resultElementBoundary[position - 1];
             }
 
             @Override

@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Shopping</string>
 
+    <string name="state_prompt">Choose a state</string>
+
     <string name="type_prompt">Choose type</string>
     <string-array name="create_type_arrays">
         <item>Choose type</item>

@@ -51,7 +51,6 @@ public class SignUp extends MainActivity {
                 try {
                     result = userTask.execute("signUp", "post", BASE_URL + "/users", DOMAIN, email.getText().toString(),
                             selectedRole.getText().toString(), userName.getText().toString(), avatar.getText().toString()).get();
-                    Log.d("restTemplate", loginUser.toString());
                 } catch (Exception e) {
                     Log.e("ExceptionSignUp", e.getMessage());
                 }

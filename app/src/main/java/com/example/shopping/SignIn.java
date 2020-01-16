@@ -42,7 +42,6 @@ public class SignIn extends MainActivity {
                 try {
                     result = userTask.execute("login", "get", BASE_URL + "/users/login/{domain}/{email}", DOMAIN,
                             email.getText().toString()).get();
-                    Log.d("restTemplate", loginUser.toString());
                 } catch (Exception e) {
                     Log.e("ExceptionSignIn", e.getMessage());
                 }

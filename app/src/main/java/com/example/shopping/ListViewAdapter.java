@@ -3,6 +3,7 @@ package com.example.shopping;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.shopping.Element.ElementBoundary;
@@ -54,7 +56,7 @@ public class ListViewAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int i) {
-        return i;
+        return actions.get(i);
     }
 
     @Override
@@ -70,49 +72,25 @@ public class ListViewAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.list_view_item, viewGroup, false);
             holder = new ViewHolder();
 
-            holder.index = position;
+            holder.text = view.findViewById(R.id.text);
             holder.ivCheckBox = view.findViewById(R.id.ivCheckBox);
             holder.button = view.findViewById(R.id.info);
-
-            holder.button.setText(buttonName);
-            if (!this.withButton)
-                holder.button.setVisibility(View.GONE);
-            if (!withCheckBox)
-                holder.ivCheckBox.setVisibility(View.GONE);
-
-            holder.ivCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    if (positionCheckedBox.contains(position)) {
-                        positionCheckedBox.remove((Object) position);
-                        compoundButton.setChecked(false);
-                        return;
-                    }
-
-                    if (multipleChoice == 1)
-                        oneChoice(position, compoundButton);
-                    if (multipleChoice == 2)
-                        twoChoice(position, compoundButton);
-                    if (multipleChoice == 0) // multiple choice
-                        positionCheckedBox.add(position);
-                }
-            });
 
             holder.button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((MainActivity) activity).selectedInfo = (ElementBoundary) actions.get(holder.index);
-
                     if (buttonName.matches("info")) {
+                        ((MainActivity) activity).selectedInfo = (ElementBoundary) actions.get(position);
                         Intent intent = new Intent(activity, InfoActivity.class);
                         intent.putExtras(new Bundle());
                         activity.startActivity(intent);
+                    } else {
+                        ((MainActivity) activity).isCreating = false;
+                        ((MainActivity) activity).selectedUpdate = (ElementBoundary) actions.get(position);
+                        Intent intent = new Intent(activity, CreateUpdateElement.class);
+                        intent.putExtras(new Bundle());
+                        activity.startActivity(intent);
                     }
-
-                    ((MainActivity) activity).isCreating = false;
-                    Intent intent = new Intent(activity, CreateElement.class);
-                    intent.putExtras(new Bundle());
-                    activity.startActivity(intent);
                 }
             });
 
@@ -121,16 +99,44 @@ public class ListViewAdapter extends BaseAdapter {
             holder = (ViewHolder)view.getTag();
         }
 
-        String tempTextCheckBox;
+        String tempText;
         if (actions.get(0).getClass() == ElementBoundary.class) {
             ElementBoundary tempElementBoundary = (ElementBoundary) actions.get(position);
-            tempTextCheckBox = tempElementBoundary.getName();
-            if (tempElementBoundary.getType().matches("store"))
-                tempTextCheckBox += " in " + tempElementBoundary.getElementAttributes().get("mall");
+            tempText = tempElementBoundary.getName();
+            if (tempElementBoundary.getType().equals("store"))
+                tempText = tempElementBoundary.getName() + " in " + tempElementBoundary.getElementAttributes().get("mall");
         } else {
-            tempTextCheckBox = (String) actions.get(position);
+            tempText = (String) actions.get(position);
         }
-        holder.ivCheckBox.setText(tempTextCheckBox);
+
+        holder.button.setText(buttonName);
+        if (!this.withButton)
+            holder.button.setVisibility(View.GONE);
+        if (withCheckBox) {
+            holder.text.setVisibility(View.GONE);
+            holder.ivCheckBox.setText(tempText);
+        } else {
+            holder.ivCheckBox.setVisibility(View.GONE);
+            holder.text.setText(tempText);
+        }
+
+        holder.ivCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (positionCheckedBox.contains(position)) {
+                    positionCheckedBox.remove((Object) position);
+                    compoundButton.setChecked(false);
+                    return;
+                }
+
+                if (multipleChoice == 1)
+                    oneChoice(position, compoundButton);
+                if (multipleChoice == 2)
+                    twoChoice(position, compoundButton);
+                if (multipleChoice == 0) // multiple choice
+                    positionCheckedBox.add(position);
+            }
+        });
 
         return view;
     }
@@ -155,13 +161,17 @@ public class ListViewAdapter extends BaseAdapter {
         Toast.makeText(activity, "you can only choose two action", Toast.LENGTH_LONG).show();
     }
 
+    public void setActions(List<?> actions) {
+        this.actions = actions;
+    }
+
     public List<Integer> getCheckedBox() {
         return positionCheckedBox;
     }
 
     class ViewHolder {
 
-        int index;
+        TextView text;
         CheckBox ivCheckBox;
         Button button;
 

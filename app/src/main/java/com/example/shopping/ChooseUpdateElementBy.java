@@ -1,9 +1,13 @@
 package com.example.shopping;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,9 +19,10 @@ import android.widget.Toast;
 import com.example.shopping.Element.ElementBoundary;
 import com.example.shopping.Tasks.ElementTasks;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UpdateElement extends ManagerActivity {
+public class ChooseUpdateElementBy extends ManagerActivity {
 
     ImageButton user;
 
@@ -42,7 +47,7 @@ public class UpdateElement extends ManagerActivity {
         user.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(UpdateElement.this, UserInfo.class);
+                Intent intent = new Intent(ChooseUpdateElementBy.this, UserInfo.class);
                 intent.putExtras(new Bundle());
                 startActivity(intent);
             }
@@ -129,8 +134,8 @@ public class UpdateElement extends ManagerActivity {
         elementTasks = new ElementTasks();
         Object result = null;
         try {
-            result = elementTasks.execute(selectedType, "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byName/{name}",
-                    DOMAIN, loginUser.getUserId().getEmail(), name.getText().toString()).get();
+            result = elementTasks.execute("byName", "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byName/{name}",
+                    DOMAIN, loginUser.getUserId().getEmail(), name.getText().toString(), PAGE_SIZE, "0").get();
         } catch (Exception e) {
             Log.e("ExceptionUpdateElement", e.getMessage());
         }
@@ -143,8 +148,9 @@ public class UpdateElement extends ManagerActivity {
         elementTasks = new ElementTasks();
         Object result = null;
         try {
-            result = elementTasks.execute(selectedType, "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}",
-                    DOMAIN, loginUser.getUserId().getEmail(), selectedType).get();
+            result = elementTasks.execute("byType", "get", BASE_URL +
+                    "/elements/{userDomain}/{userEmail}/byType/{type}?size={size}&page={page}", DOMAIN,
+                    loginUser.getUserId().getEmail(), selectedType, PAGE_SIZE, "0").get();
         } catch (Exception e) {
             Log.e("ExceptionUpdateElement", e.getMessage());
         }
@@ -158,7 +164,10 @@ public class UpdateElement extends ManagerActivity {
             Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
             return false;
         }
-        resultSearchUpdate = Arrays.asList((ElementBoundary[]) result);
+        ElementBoundary[] resultArr = (ElementBoundary[]) result;
+        resultSearchUpdate = new ArrayList<>();
+        for (int i = 0; i < resultArr.length; i++)
+            resultSearchUpdate.add(resultArr[i]);
         return true;
     }
 
@@ -172,13 +181,30 @@ public class UpdateElement extends ManagerActivity {
         if (resultSearchUpdate.size() == 1) {
             isCreating = false;
             selectedUpdate = resultSearchUpdate.get(0);
-            intent = new Intent(UpdateElement.this, CreateElement.class);
+            intent = new Intent(ChooseUpdateElementBy.this, CreateUpdateElement.class);
+            intent.putExtras(new Bundle());
+            startActivity(intent);
+        } else {
+            intent = new Intent(ChooseUpdateElementBy.this, ResultSearchUpdate.class);
             intent.putExtras(new Bundle());
             startActivity(intent);
         }
+    }
 
-        intent = new Intent(UpdateElement.this, ResultSearchUpdate.class);
-        intent.putExtras(new Bundle());
-        startActivity(intent);
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if ( v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+                    v.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 }

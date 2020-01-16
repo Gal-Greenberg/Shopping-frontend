@@ -18,6 +18,8 @@ import com.example.shopping.Tasks.UserTasks;
 import com.example.shopping.User.UserBoundary;
 import com.example.shopping.User.UserRole;
 
+import java.util.HashMap;
+
 public class UserInfo extends MainActivity {
 
     EditText userName;
@@ -56,16 +58,16 @@ public class UserInfo extends MainActivity {
                 }
 
                 userTask = new UserTasks();
-                String result = null;
+                Object result = null;
                 try {
-                    result = (String) userTask.execute("update", "put", BASE_URL + "/users/{domain}/{userEmail}", DOMAIN, loginUser.getUserId().getEmail(),
+                    result = userTask.execute("update", "put", BASE_URL + "/users/{domain}/{userEmail}", DOMAIN, loginUser.getUserId().getEmail(),
                             selectedRole.getText().toString(), userName.getText().toString(), avatar.getText().toString()).get();
                     Log.d("restTemplate", loginUser.toString());
                 } catch (Exception e) {
                     Log.e("ExceptionSignUp", e.getMessage());
                 }
 
-                if (result.matches("put result succeeded")) {
+                if (result.getClass() == String.class && ((String) result).matches("put result succeeded")) {
                     if (selectedRole.getText().toString().matches("PLAYER"))
                         loginUser = new UserBoundary(loginUser.getUserId(), UserRole.PLAYER, userName.getText().toString(),
                             avatar.getText().toString());
@@ -74,7 +76,7 @@ public class UserInfo extends MainActivity {
                                 avatar.getText().toString());
                     actionSucceeded();
                 }
-                Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), (String) ((HashMap) result).get("error"), Toast.LENGTH_LONG).show();
             }
         });
 

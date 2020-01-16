@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.shopping.Action.ActionBoundary;
 import com.example.shopping.Action.Element;
 import com.example.shopping.Action.User;
+import com.example.shopping.Element.ElementBoundary;
 import com.example.shopping.Element.ElementId;
 import com.example.shopping.User.UserId;
 
@@ -18,10 +19,17 @@ import java.util.Map;
 public class ActionTasks extends AsyncTask<String, Void, Object> {
 
     private RestTemplate restTemplate;
+    private String[] selectedElementAttributes;
 
     public ActionTasks() {
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJacksonHttpMessageConverter());
+    }
+
+    public ActionTasks(String[] elementAttributes) {
+        restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJacksonHttpMessageConverter());
+        this.selectedElementAttributes = elementAttributes;
     }
 
     @Override
@@ -34,33 +42,42 @@ public class ActionTasks extends AsyncTask<String, Void, Object> {
          * params[4] - action type
          * params[5] - page
          * params[6] - size
-         * params[7] - elementAttributes
+         * params[7] - Element id (String)
          */
 
+        Object responseType;
         Map<String, Object> elementAttributes = new HashMap<>();
         switch (params[4]) {
             case "findStoresInState":
             case "findAllStoresInCategoryInMall":
-                for (int i = 0; i < params.length - 7; i++) {
-                    elementAttributes.put("" + i, params[i + 7]);
+                for (int i = 0; i < selectedElementAttributes.length; i++) {
+                    elementAttributes.put("" + i, selectedElementAttributes[i]);
                 }
+                responseType = new ElementBoundary[0];
                 break;
-//            case "findAllStoresInCategoryInMall":
-//                break;
+            case "distanceBetweenMalls":
+                elementAttributes.put("id", params[7]);
+                responseType = new HashMap<String, String>();
+                break;
+            case "findAllStoresInMall":
+            case "findAllStoresByLikes":
+                responseType = new ElementBoundary[0];
+                break;
+            default:
+                responseType = new HashMap<String, String>();
+                break;
         }
-        elementAttributes.put("page", params[5]);
-        elementAttributes.put("size", params[6]);
+        elementAttributes.put("page", Integer.parseInt(params[5]));
+        elementAttributes.put("size", Integer.parseInt(params[6]));
 
         Object request = new ActionBoundary(null, new Element(new ElementId(params[1], params[3])),
                 new User(new UserId(params[1], params[2])), params[4], null, elementAttributes);
         try {
-            restTemplate.postForObject(params[0], request, Object.class);
+            return restTemplate.postForObject(params[0], request, responseType.getClass());
         } catch (Exception e) {
             //TODO fix to return all message, return only 404
-            Log.e("ExceptionElementTasks", e.getMessage());
+            Log.e("ExceptionActionTasks", e.getMessage());
             return e.getMessage();
         }
-
-        return null;
     }
 }

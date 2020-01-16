@@ -40,7 +40,7 @@ public class ManagerActivity extends MainActivity {
             @Override
             public void onClick(View view) {
                 isCreating = true;
-                intent = new Intent(ManagerActivity.this, CreateElement.class);
+                intent = new Intent(ManagerActivity.this, CreateUpdateElement.class);
                 intent.putExtras(new Bundle());
                 startActivity(intent);
             }
@@ -51,7 +51,7 @@ public class ManagerActivity extends MainActivity {
             @Override
             public void onClick(View view) {
                 isCreating = false;
-                intent = new Intent(ManagerActivity.this, UpdateElement.class);
+                intent = new Intent(ManagerActivity.this, ChooseUpdateElementBy.class);
                 intent.putExtras(new Bundle());
                 startActivity(intent);
             }

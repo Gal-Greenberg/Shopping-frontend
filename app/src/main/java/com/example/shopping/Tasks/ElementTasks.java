@@ -3,7 +3,9 @@ package com.example.shopping.Tasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.shopping.Element.Element;
 import com.example.shopping.Element.ElementBoundary;
+import com.example.shopping.MainActivity;
 
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
@@ -29,15 +31,15 @@ public class ElementTasks extends AsyncTask<String, Void, Object> {
          * params[3] - urlVariables DOMAIN
          * params[4] - urlVariables stringEmail
          * params[5] - urlVariables name
-         * params[6] - urlVariables selectedType
-         * params[7] - urlVariables active
+         * params[6] - urlVariables selectedType / size
+         * params[7] - urlVariables active / page
          * params[8] - urlVariables selectedState
-         * params[9] - urlVariables city
-         * params[10] - urlVariables streetName
-         * params[11] - urlVariables streetNum
-         * params[12] - urlVariables mall
-         * params[13] - urlVariables floor
-         * params[14] - urlVariables category
+         * params[9] - urlVariables city / mall
+         * params[10] - urlVariables streetName / floor
+         * params[11] - urlVariables streetNum / category
+         * params[12] - urlVariables elementId selectedUpdate
+         * params[13] - urlVariables lat
+         * params[14] - urlVariables lng
          */
 
         String[] urlVariables = new String[params.length - 3];
@@ -52,22 +54,24 @@ public class ElementTasks extends AsyncTask<String, Void, Object> {
                 Map<String, Object> elementAttributes = new HashMap<>();
                 ElementBoundary parentElement = null;
 
+                elementAttributes.put("state", params[8]);
                 if (params[6].matches("mall")) {
-                    elementAttributes.put("state", params[8]);
                     elementAttributes.put("city", params[9]);
                     elementAttributes.put("streetName", params[10]);
                     elementAttributes.put("streetNum", params[11]);
+                    Log.e("lat", Double.parseDouble(params[13]) + "");
+                    elementAttributes.put("lat", Double.parseDouble(params[13]));
+                    elementAttributes.put("lng", Double.parseDouble(params[14]));
 
-                    parentElement = getParentByName(params);
-
+                    parentElement = getParentByName(params[3], params[4], params[8], "state");
                 }
                 if (params[6].matches("store")) {
-                    elementAttributes.put("mall", params[12]);
-                    elementAttributes.put("floor", params[13]);
-                    elementAttributes.put("category", params[14]);
+                    elementAttributes.put("mall", params[9]);
+                    elementAttributes.put("floor", params[10]);
+                    elementAttributes.put("category", params[11]);
                     elementAttributes.put("likes", 0);
 
-                    parentElement = getParentByName(params);
+                    parentElement = getParentByName(params[3], params[4], params[9], "mall");
                 }
 
                 if (parentElement == null)
@@ -75,17 +79,18 @@ public class ElementTasks extends AsyncTask<String, Void, Object> {
                             null, null, elementAttributes);
                 else
                     request = new ElementBoundary(null, params[5], params[6], params[7], null,
-                        null, parentElement.getParentElement(), elementAttributes);
+                        null, new Element(parentElement.getElementId()), elementAttributes);
+                urlVariables[2] = params[3];
+                urlVariables[3] = params[12];
                 break;
         }
 
-        String[] result = new String[1];
         try {
             switch (params[1]) {
                 case "get":
                     return restTemplate.getForObject(params[2], ElementBoundary[].class, urlVariables);
                 case "post":
-                    return restTemplate.postForObject(params[2], request, ElementBoundary[].class, urlVariables);
+                    return restTemplate.postForObject(params[2], request, ElementBoundary.class, urlVariables);
                 case "put":
                     restTemplate.put(params[2], request, urlVariables);
 //                    result[0] = "put result";
@@ -102,11 +107,12 @@ public class ElementTasks extends AsyncTask<String, Void, Object> {
         return null;
     }
 
-    public ElementBoundary getParentByName(String... params) {
-        ElementBoundary parentElement = restTemplate.getForObject("/elements/{userDomain}/{userEmail}/byName/{name}",
-                ElementBoundary[].class, params[3], params[4], params[8])[0];
+    public ElementBoundary getParentByName(String userDomain, String userEmail, String name, String parentType) {
+        ElementBoundary parentElement = restTemplate.getForObject(MainActivity.BASE_URL + "/elements/{userDomain}/{userEmail}/byName/{name}",
+                ElementBoundary[].class, userDomain, userEmail, name)[0];
         if (parentElement == null) {
-            throw new RuntimeException("no parent element found: floor/state");
+            Log.e("", "no parent element found:");
+            throw new RuntimeException("no parent element found: " + parentType);
         }
         return parentElement;
     }

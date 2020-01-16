@@ -13,7 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     public static final String DOMAIN = "2020a.nofar"; //2020a.alik
-    public static final String BASE_URL = "http://10.0.0.3:8080/collab"; //home: 10.0.0.3, afeka: 172.20.23.170
+    public static final String BASE_URL = "http://10.0.0.3:5432/collab"; //home: 10.0.0.3
+    public static final String PAGE_SIZE = "10";
 
     public static UserTasks userTask;
     public static ElementTasks elementTasks;
@@ -22,11 +23,11 @@ public class MainActivity extends AppCompatActivity {
     public static UserBoundary loginUser;
 
     public static int actionNumber;
-    public static String[] selectedStores;
-    public static String[] selectedCategory;
+    public static List<String> selectedStores;
+    public static List<String> selectedCategory;
     public static ElementBoundary selectedState;
     public static ElementBoundary selectedInfo;
-    public static ElementBoundary[] selectedMalls;
+    public static List<ElementBoundary> selectedMalls;
 
     public static List<ElementBoundary> resultSearchUpdate;
     public static ElementBoundary selectedUpdate;

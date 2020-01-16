@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import com.example.shopping.Tasks.ActionTasks;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class InfoActivity extends MainActivity {
 
     TextView title;
@@ -49,7 +52,8 @@ public class InfoActivity extends MainActivity {
 
     public void infoAboutMall() {
         title.setText("Information about mall" );
-        location.setText("Location: " + selectedInfo.getElementAttributes().get("location"));
+        location.setText("Location: " + selectedInfo.getElementAttributes().get("city") + ", " +
+                selectedInfo.getElementAttributes().get("streetName") + " " + selectedInfo.getElementAttributes().get("streetNum"));
 
         mallAndFloor.setVisibility(View.GONE);
         category.setVisibility(View.GONE);
@@ -64,24 +68,26 @@ public class InfoActivity extends MainActivity {
         category.setText("Category: " + selectedInfo.getElementAttributes().get("category"));
 
         numberLikes = (int) selectedInfo.getElementAttributes().get("likes");
-        numLikes.setText(numberLikes + "Likes");
+        numLikes.setText(numberLikes + " Likes");
 
         like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String result = null;
+                Map<String, String> result = null;
                 actionTasks = new ActionTasks();
                 try {
-                    result = (String) elementTasks.execute(BASE_URL + "/actions", DOMAIN, loginUser.getUserId().getEmail(),
-                            selectedInfo.getElementId().getId(), "likeToStore").get();
+                    result = (HashMap) actionTasks.execute(BASE_URL + "/actions", DOMAIN, loginUser.getUserId().getEmail(),
+                            selectedInfo.getElementId().getId(), "likeToStore", "0", "10").get();
                 } catch (Exception e) {
                     Log.e("ExceptionChooseAction", e.getMessage());
                 }
-                if (!result.matches("Success")){
-                    Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+                if (result.containsKey("error")){
+                    Toast.makeText(getApplicationContext(), result.get("error"), Toast.LENGTH_LONG).show();
                     return;
                 }
+                Toast.makeText(getApplicationContext(), "Thanks!", Toast.LENGTH_LONG).show();
                 numberLikes++;
+                numLikes.setText(numberLikes + " Likes");
             }
         });
 

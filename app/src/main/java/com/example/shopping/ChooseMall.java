@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -26,6 +27,10 @@ public class ChooseMall extends MainActivity {
 
     String positionCheckedBoxEmptyErr;
 
+    int page;
+    int sizeResult;
+    ArrayList<ElementBoundary> allMalls;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,31 +46,10 @@ public class ChooseMall extends MainActivity {
             }
         });
 
-        listView = findViewById(R.id.listView);
+        selectedMalls = new ArrayList<>();
+        allMalls = new ArrayList<>();
+
         title = findViewById(R.id.title);
-
-        Object result = null;
-        elementTasks = new ElementTasks();
-        try {
-            result = elementTasks.execute("malls", "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}",
-                    DOMAIN, loginUser.getUserId().getEmail(), "mall").get();
-        } catch (Exception e) {
-            Log.e("ExceptionChooseMall", e.getMessage());
-        }
-
-        if (result.getClass() == String.class) {
-            Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
-            return;
-        }
-        ElementBoundary[] resultElementBoundary = (ElementBoundary[]) result;
-
-        final ArrayList<ElementBoundary> allMalls = new ArrayList<>();
-        for (ElementBoundary mall: resultElementBoundary) {
-            if (mall.getElementAttributes().get("state").equals(selectedState)){
-                allMalls.add(mall);
-            }
-        }
-
         int multipleChoice = 1;
         positionCheckedBoxEmptyErr = "please choose one mall";
         if (actionNumber == 3) {
@@ -74,8 +58,47 @@ public class ChooseMall extends MainActivity {
             positionCheckedBoxEmptyErr = "please choose two mall";
         }
 
+        listView = findViewById(R.id.listView);
+        isGetActionResults(true, true);
         final ListViewAdapter arrayAdapter = new ListViewAdapter(this, allMalls, true, "info", true, multipleChoice);
         listView.setAdapter(arrayAdapter);
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int i) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int firstItem, int visibleItemCount, int totalItems) {
+                boolean isScroll = false;
+                boolean isPrev = false;
+                if (firstItem == 0 && page > 0) {
+                    page--;
+                    saveSelectedMalls(arrayAdapter.getCheckedBox());
+                    isScroll = isGetActionResults(false, false);
+                    isPrev = true;
+                } else if (sizeResult == 10 && (firstItem + visibleItemCount) == totalItems) {
+                    page++;
+                    saveSelectedMalls(arrayAdapter.getCheckedBox());
+                    isScroll = isGetActionResults(true, false);
+                }
+
+                if (isScroll) {
+                    listView.setAdapter(arrayAdapter);
+                    listView.setSelection(totalItems);
+                    arrayAdapter.notifyDataSetChanged();
+
+                    if (isPrev) {
+                        listView.setSelectionAfterHeaderView();
+
+//                        for (int i = 0; i < selectedStores.size(); i++) {
+//                            int indexInListView = allStores.indexOf(selectedStores.get(i));
+//                            listView.setSelection(indexInListView);
+//                        }
+                    }
+                }
+            }
+        });
 
         shopping = findViewById(R.id.shopping);
         shopping.setOnClickListener(new View.OnClickListener() {
@@ -87,10 +110,7 @@ public class ChooseMall extends MainActivity {
                     return;
                 }
 
-                int size = positionCheckedBox.size();
-                selectedMalls = new ElementBoundary[size];
-                for (int i = 0; i < size; i++)
-                    selectedMalls[i] = allMalls.get(positionCheckedBox.get(i));
+                saveSelectedMalls(arrayAdapter.getCheckedBox());
 
                 Intent intent;
                 switch (actionNumber) {
@@ -106,6 +126,10 @@ public class ChooseMall extends MainActivity {
                         startActivity(intent);
                         break;
                     case 3:
+                        if (selectedMalls.size() < 2) {
+                            Toast.makeText(getApplicationContext(), positionCheckedBoxEmptyErr, Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         intent = new Intent(ChooseMall.this, MallsDistance.class);
                         intent.putExtras(new Bundle());
                         startActivity(intent);
@@ -113,5 +137,48 @@ public class ChooseMall extends MainActivity {
                 }
             }
         });
+    }
+
+    public boolean isGetActionResults(boolean isNextPage, boolean isFirstTime) {
+        elementTasks = new ElementTasks();
+        Object result;
+        try {
+            result = elementTasks.execute("malls", "get", BASE_URL + "/elements/{userDomain}/{userEmail}/byType/{type}?size={size}&page={page}",
+                    DOMAIN, loginUser.getUserId().getEmail(), "mall", PAGE_SIZE, "" + page).get();
+            if (result.getClass() == String.class) {
+                Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
+                return false;
+            }
+
+            ElementBoundary[] resultArr = (ElementBoundary[]) result;
+            sizeResult = resultArr.length;
+
+            if (isNextPage) {
+                for (int i = 0; i < sizeResult; i++) {
+                    if (((String) resultArr[i].getElementAttributes().get("state")).matches(selectedState.getName())) {
+                        if (!isFirstTime)
+                            allMalls.remove(i);
+                        allMalls.add(resultArr[i]);
+                    }
+                }
+            } else {
+                for (int i = sizeResult - 1; i > -1; i--) {
+                    if (((String) resultArr[i].getElementAttributes().get("state")).matches(selectedState.getName())) {
+                        allMalls.remove(i);
+                        allMalls.add(resultArr[i]);
+                    }
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e("ExceptionSearchUpdate", e.getMessage());
+            return false;
+        }
+    }
+
+    public void saveSelectedMalls(List<Integer> positionCheckedBox) {
+        int size = positionCheckedBox.size();
+        for (int i = 0; i < size; i++)
+            selectedMalls.add(allMalls.get(positionCheckedBox.get(i)));
     }
 }
