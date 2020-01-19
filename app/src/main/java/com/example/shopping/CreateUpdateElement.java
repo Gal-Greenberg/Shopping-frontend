@@ -304,7 +304,6 @@ public class CreateUpdateElement extends MainActivity {
         try {
             if (isMall) {
                 Address mall = getAddressMall();
-                Log.e("mall.toString", mall.toString());
                 result = (String) elementTasks.execute("create", "post", BASE_URL + "/elements/{managerDomain}/{managerEmail}",
                         DOMAIN, loginUser.getUserId().getEmail(), name.getText().toString(), selectedType, "" + active.isChecked(),
                         (selectedState == null ? null : selectedState.getName()), elementAttribute1,

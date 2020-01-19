@@ -75,7 +75,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:textColor="#FFEB3B"
+            android:textColor="#E91E63"
             android:gravity="fill_vertical"
             android:textSize="20dp"/>
 

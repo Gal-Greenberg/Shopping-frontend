@@ -62,7 +62,6 @@ public class UserInfo extends MainActivity {
                 try {
                     result = userTask.execute("update", "put", BASE_URL + "/users/{domain}/{userEmail}", DOMAIN, loginUser.getUserId().getEmail(),
                             selectedRole.getText().toString(), userName.getText().toString(), avatar.getText().toString()).get();
-                    Log.d("restTemplate", loginUser.toString());
                 } catch (Exception e) {
                     Log.e("ExceptionSignUp", e.getMessage());
                 }
@@ -75,6 +74,7 @@ public class UserInfo extends MainActivity {
                         loginUser = new UserBoundary(loginUser.getUserId(), UserRole.MANAGER, userName.getText().toString(),
                                 avatar.getText().toString());
                     actionSucceeded();
+                    return;
                 }
                 Toast.makeText(getApplicationContext(), (String) ((HashMap) result).get("error"), Toast.LENGTH_LONG).show();
             }

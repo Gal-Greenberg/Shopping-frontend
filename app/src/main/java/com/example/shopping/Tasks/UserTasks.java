@@ -68,7 +68,6 @@ public class UserTasks extends AsyncTask<String, Void, Object> {
                     return "put result succeeded";
             }
         }  catch (Exception e) {
-            //TODO fix to return all message, return only 404
             Log.e("ExceptionUserTasks", e.getMessage());
             return e.getMessage();
         }

@@ -75,7 +75,6 @@ public class ActionTasks extends AsyncTask<String, Void, Object> {
         try {
             return restTemplate.postForObject(params[0], request, responseType.getClass());
         } catch (Exception e) {
-            //TODO fix to return all message, return only 404
             Log.e("ExceptionActionTasks", e.getMessage());
             return e.getMessage();
         }

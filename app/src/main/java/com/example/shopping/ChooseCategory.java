@@ -45,30 +45,6 @@ public class ChooseCategory extends MainActivity {
         selectedCategory = new ArrayList<>();
         allCategory = new ArrayList<>();
 
-//        Object result = null;
-//        elementTasks = new ElementTasks();
-//        try {
-//            result = elementTasks.execute("category", "get",
-//                    BASE_URL + "/elements/{userDomain}/{userEmail}/byParent/{parentDomain}/{parentId}", DOMAIN,
-//                    loginUser.getUserId().getEmail(), DOMAIN, selectedMalls.get(0).getElementId().getId()).get();
-//        } catch (Exception e) {
-//            Log.e("ExceptionChooseCategory", e.getMessage());
-//        }
-//
-//        if (result.getClass() == String.class) {
-//            Toast.makeText(getApplicationContext(), result.toString(), Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//        ElementBoundary[] resultElementBoundary = (ElementBoundary[]) result;
-//
-//        allCategory = new ArrayList<>();
-//        for (ElementBoundary category: resultElementBoundary) {
-//            String resultCategory = (String) category.getElementAttributes().get("category");
-//            if (!allCategory.contains(resultCategory)){
-//                allCategory.add(resultCategory);
-//            }
-//        }
-
         listView = findViewById(R.id.listView);
         isGetActionResults(true, true);
         final ListViewAdapter arrayAdapter = new ListViewAdapter(this, allCategory, false, "", true, 0);

@@ -59,11 +59,12 @@ public class ElementTasks extends AsyncTask<String, Void, Object> {
                     elementAttributes.put("city", params[9]);
                     elementAttributes.put("streetName", params[10]);
                     elementAttributes.put("streetNum", params[11]);
-                    Log.e("lat", Double.parseDouble(params[13]) + "");
                     elementAttributes.put("lat", Double.parseDouble(params[13]));
                     elementAttributes.put("lng", Double.parseDouble(params[14]));
 
                     parentElement = getParentByName(params[3], params[4], params[8], "state");
+                    if (parentElement == null)
+                        return "no parent element found: mall";
                 }
                 if (params[6].matches("store")) {
                     elementAttributes.put("mall", params[9]);
@@ -72,6 +73,8 @@ public class ElementTasks extends AsyncTask<String, Void, Object> {
                     elementAttributes.put("likes", 0);
 
                     parentElement = getParentByName(params[3], params[4], params[9], "mall");
+                    if (parentElement == null)
+                        return "no parent element found: mall";
                 }
 
                 if (parentElement == null)
@@ -93,27 +96,21 @@ public class ElementTasks extends AsyncTask<String, Void, Object> {
                     return restTemplate.postForObject(params[2], request, ElementBoundary.class, urlVariables);
                 case "put":
                     restTemplate.put(params[2], request, urlVariables);
-//                    result[0] = "put result";
-//                    return result;
                     return "put result succeeded";
             }
         }  catch (Exception e) {
-            //TODO fix to return all message, return only 404
             Log.e("ExceptionElementTasks", e.getMessage());
-//            result[0] = e.getMessage();
-//            return result;
             return e.getMessage();
         }
         return null;
     }
 
     public ElementBoundary getParentByName(String userDomain, String userEmail, String name, String parentType) {
-        ElementBoundary parentElement = restTemplate.getForObject(MainActivity.BASE_URL + "/elements/{userDomain}/{userEmail}/byName/{name}",
-                ElementBoundary[].class, userDomain, userEmail, name)[0];
-        if (parentElement == null) {
-            Log.e("", "no parent element found:");
-            throw new RuntimeException("no parent element found: " + parentType);
+        ElementBoundary[] parentElement = restTemplate.getForObject(MainActivity.BASE_URL + "/elements/{userDomain}/{userEmail}/byName/{name}",
+                ElementBoundary[].class, userDomain, userEmail, name);
+        if (parentElement.length == 0) {
+            return null;
         }
-        return parentElement;
+        return parentElement[0];
     }
 }
