@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     public static final String DOMAIN = "2020a.alik";
-    public static final String BASE_URL = "http://192.168.1.108:8888/collab";
+    public static final String BASE_URL = "http://ipBackend:8888/collab";
     public static final String PAGE_SIZE = "10";
 
     public static UserTasks userTask;
